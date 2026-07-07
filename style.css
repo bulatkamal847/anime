@@ -1,86 +1,136 @@
 :root {
+    --bg-main: #0b0f19;
+    --bg-container: #131a2c;
+    --bg-card: rgba(30, 41, 59, 0.5);
     --primary: #2563EB;
-    --primary-dark: #1d4ed8;
-    --bg: #f8fafc;
-    --text: #1e293b;
-    --border: #e2e8f0;
+    --primary-glow: rgba(37, 99, 235, 0.4);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border: #1e293b;
 }
 
 body {
     font-family: 'Segoe UI', system-ui, sans-serif;
-    background-color: var(--bg);
-    color: var(--text);
+    background-color: var(--bg-main);
+    color: var(--text-main);
     display: flex;
     justify-content: center;
     padding: 20px;
+    margin: 0;
 }
 
 .container {
-    background: white;
+    background: var(--bg-container);
     width: 100%;
     max-width: 550px;
     padding: 30px;
     border-radius: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    border: 1px solid #1e293b;
 }
 
-/* Название */
+/* Название проекта */
 .title-section { margin-bottom: 25px; }
-.field-label { font-size: 0.85rem; color: #64748b; font-weight: 600; margin-bottom: 6px; display: block; }
+.field-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
 .title-input {
-    width: 100%; padding: 14px; border: 2px solid var(--border);
-    border-radius: 14px; font-size: 1.1rem; font-weight: 600;
+    width: 100%; padding: 14px; background: var(--bg-card); border: 1.5px solid var(--border);
+    border-radius: 14px; font-size: 1.1rem; font-weight: 600; color: white;
     outline: none; transition: 0.2s; box-sizing: border-box;
 }
-.title-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
+.title-input:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
 
-/* Сетка */
+/* Сетка и карточки критериев */
 .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
-.extra-card { background: #f1f5f9; padding: 20px; border-radius: 18px; margin-bottom: 25px; }
+.extra-card { 
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8)); 
+    padding: 20px; border-radius: 18px; margin-bottom: 25px; 
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    border: 1px solid rgba(255,255,255,0.02);
+}
 
-.item label { display: block; margin-bottom: 8px; font-weight: 700; font-size: 0.95rem; }
-.range-row { display: flex; align-items: center; gap: 12px; }
-.range-row span { min-width: 20px; font-weight: 800; color: var(--primary); }
+.item label { display: block; margin-bottom: 10px; font-weight: 700; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.range-row { display: flex; align-items: center; gap: 14px; position: relative; }
+.range-row span { min-width: 20px; font-weight: 800; color: #fff; text-align: right; font-size: 1.1rem; text-shadow: 0 0 8px rgba(255,255,255,0.2); }
 
-/* Живые ползунки */
+/* Кастомные ползунки с символом ஐ */
 input[type="range"] {
-    -webkit-appearance: none; width: 100%; height: 6px;
-    border-radius: 10px; background: #cbd5e1; outline: none; cursor: pointer;
+    -webkit-appearance: none; width: 100%; height: 8px;
+    border-radius: 10px; background: #1e293b; outline: none; cursor: pointer;
+    position: relative;
 }
+
+/* Стилизация ползунка для WebKit (Chrome, Safari, Edge) */
 input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 18px; height: 18px;
-    background: var(--primary); border: 3px solid white; border-radius: 50%;
-    transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-}
-input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.3);
-    box-shadow: 0 0 0 10px rgba(37,99,235,0.1);
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    background: transparent; /* Скрываем стандартный круг */
+    border: none;
+    position: relative;
+    z-index: 2;
+    cursor: pointer;
 }
 
-/* Кнопки */
+/* Магия вставки символа вместо круга */
+.range-row::after {
+    content: 'ஐ';
+    position: absolute;
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: normal;
+    pointer-events: none;
+    /* Выравниваем символ по текущему значению ползунка */
+    left: calc(var(--percent, 50%) * 0.82 + 2px); 
+    transform: translateY(-2px);
+    text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
+    transition: transform 0.1s ease, text-shadow 0.2s;
+}
+input[type="range"]:hover + span + .range-row::after, 
+.range-row:hover::after {
+    transform: translateY(-2px) scale(1.2);
+    color: #3b82f6;
+}
+
+/* Главная Кнопка */
 .primary-btn {
-    width: 100%; padding: 16px; background: var(--primary); color: white;
+    width: 100%; padding: 16px; background: linear-gradient(90deg, #1d4ed8, #2563EB); color: white;
     border: none; border-radius: 14px; font-weight: 700; font-size: 1rem;
-    cursor: pointer; transition: 0.2s;
+    cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
 }
-.primary-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+.primary-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px var(--primary-glow); }
 
-/* Результат */
-.result-box { text-align: center; padding: 20px; margin-top: 20px; background: #f8fafc; border-radius: 16px; }
-#totalScore { font-size: 4rem; font-weight: 900; line-height: 1; margin-top: 5px; }
+/* Огромный итоговый результат в стиле чартов */
+.result-box { text-align: center; padding: 25px; margin-top: 25px; background: rgba(15, 23, 42, 0.6); border-radius: 16px; border: 1px solid var(--border); }
+.result-box p { color: var(--text-muted); margin: 0; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+#totalScore { font-size: 5rem; font-weight: 900; line-height: 1; margin-top: 10px; text-shadow: 0 0 30px var(--primary-glow); }
 .hidden { display: none; }
 
-/* История */
-.history-container { margin-top: 35px; border-top: 2px solid var(--bg); padding-top: 25px; }
-.history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.export-btn { background: #fff; border: 1.5px solid var(--border); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
-.export-btn:hover { background: #f1f5f9; }
+/* Блок истории */
+.history-container { margin-top: 35px; border-top: 1px solid var(--border); padding-top: 25px; }
+.history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.history-header h3 { margin: 0; font-size: 1.2rem; font-weight: 700; }
+.history-actions { display: flex; gap: 10px; }
 
+.export-btn, .clear-btn { 
+    background: var(--bg-card); 
+    border: 1px solid var(--border); 
+    padding: 8px 14px; 
+    border-radius: 10px; 
+    cursor: pointer; 
+    font-weight: 600; 
+    font-size: 0.85rem; 
+    color: var(--text-main);
+    transition: 0.2s;
+}
+.export-btn:hover { background: #1e293b; border-color: #3b82f6; }
+.clear-btn:hover { background: #271c24; border-color: #ef4444; color: #ef4444; }
+
+/* Элементы истории в стиле неоновых карточек */
 .history-item {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 12px 18px; background: #fff; border: 1px solid var(--border);
-    border-radius: 12px; margin-bottom: 10px; border-left: 5px solid var(--primary);
+    padding: 14px 20px; background: rgba(22, 30, 49, 0.7); border: 1px solid var(--border);
+    border-radius: 14px; margin-bottom: 12px; border-left: 5px solid var(--primary);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
-.history-item b { font-size: 1rem; }
-.score-badge { font-weight: 800; padding: 4px 10px; border-radius: 8px; background: #f1f5f9; }
+.history-item b { font-size: 1rem; color: #fff; }
+.score-badge { font-weight: 800; padding: 6px 12px; border-radius: 8px; background: var(--bg-main); font-size: 1.05rem; border: 1px solid var(--border); }
