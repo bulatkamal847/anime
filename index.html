@@ -23,7 +23,7 @@
                 </div>
             </div>
             <div class="item">
-                <label>Персонажи</label>
+                <label>Персонажи / Рисовка</label>
                 <div class="range-row">
                     <input type="range" min="0" max="10" value="5" class="slider" id="chars">
                     <span id="charsVal">5</span>
@@ -43,21 +43,35 @@
                     <span id="musicVal">5</span>
                 </div>
             </div>
+            <div class="item">
+                <label>Оригинальность</label>
+                <div class="range-row">
+                    <input type="range" min="0" max="10" value="5" class="slider" id="originality">
+                    <span id="originalityVal">5</span>
+                </div>
+            </div>
+            <div class="item">
+                <label>Финал</label>
+                <div class="range-row">
+                    <input type="range" min="0" max="10" value="5" class="slider" id="ending">
+                    <span id="endingVal">5</span>
+                </div>
+            </div>
         </div>
 
         <div class="extra-card">
-            <div class="item">
-                <label>Вайб</label>
-                <div class="range-row">
-                    <input type="range" min="0" max="5" value="3" class="slider" id="vibe">
-                    <span id="vibeVal">3</span>
-                </div>
-            </div>
             <div class="item">
                 <label>Реализация</label>
                 <div class="range-row">
                     <input type="range" min="0" max="5" value="3" class="slider" id="real">
                     <span id="realVal">3</span>
+                </div>
+            </div>
+            <div class="item">
+                <label>Вайб / Атмосфера</label>
+                <div class="range-row">
+                    <input type="range" min="0" max="5" value="3" class="slider" id="vibe">
+                    <span id="vibeVal">3</span>
                 </div>
             </div>
         </div>
@@ -72,10 +86,12 @@
         <div class="history-container">
             <div class="history-header">
                 <h3>История оценок</h3>
-                <button id="exportBtn" class="export-btn">💾 Сохранить JSON на диск</button>
-            </div>
-            <div id="historyList" class="history-list">
+                <div class="history-actions">
+                    <button id="exportBtn" class="export-btn">💾 Сохранить JSON</button>
+                    <button id="clearBtn" class="clear-btn">🗑️ Очистить историю</button>
                 </div>
+            </div>
+            <div id="historyList" class="history-list"></div>
         </div>
     </div>
 
