@@ -20,7 +20,7 @@ const archiveYearSelect = document.getElementById('archiveYearSelect');
 const clearSeasonsBtn = document.getElementById('clearSeasonsBtn');
 const seasonBtns = document.querySelectorAll('.season-btn');
 
-// Системные переменные
+// Системные переменные 
 let currentSelectedSeason = 'winter';
 const currentSystemYear = new Date().getFullYear();
 
