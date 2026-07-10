@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -9,19 +9,23 @@
 <body>
 
     <div class="container">
+        <!-- НАВИГАЦИЯ МЕЖДУ ВКЛАДКАМИ -->
         <nav class="tabs-nav">
             <button class="tab-btn active" data-tab="mainTab">Главная</button>
             <button class="tab-btn" data-tab="top25Tab">Топ-25</button>
         </nav>
 
+        <!-- ЭКРАН 1: ГЛАВНАЯ -->
         <section id="mainTab" class="tab-content">
             
+            <!-- ПАНЕЛЬ ТОП СЕЗОНОВ ПО ГОДАМ (ПО 1 НА СЕЗОН) -->
             <div class="seasons-archive-container">
                 <div class="archive-header">
-                    <h3>Топ сезонов</h3>
+                    <h3>Короли Сезонов (Лучшее за год)</h3>
                     <div class="archive-actions">
                         <select id="archiveYearSelect" class="year-select">
-                            </select>
+                            <!-- Года добавляются динамически -->
+                        </select>
                         <button id="clearSeasonsBtn" class="clear-btn season-danger-btn">Сбросить год</button>
                     </div>
                 </div>
@@ -29,26 +33,26 @@
                 <div class="seasons-grid">
                     <div class="season-card" data-season="winter">
                         <div class="season-title">Зима</div>
-                        <div class="season-slots" id="slots-winter">
-                            <p class="empty-text">Пусто</p>
+                        <div class="season-winner" id="winner-winter">
+                            <p class="empty-text">Нет лидера</p>
                         </div>
                     </div>
                     <div class="season-card" data-season="spring">
                         <div class="season-title">Весна</div>
-                        <div class="season-slots" id="slots-spring">
-                            <p class="empty-text">Пусто</p>
+                        <div class="season-winner" id="winner-spring">
+                            <p class="empty-text">Нет лидера</p>
                         </div>
                     </div>
                     <div class="season-card" data-season="summer">
                         <div class="season-title">Лето</div>
-                        <div class="season-slots" id="slots-summer">
-                            <p class="empty-text">Пусто</p>
+                        <div class="season-winner" id="winner-summer">
+                            <p class="empty-text">Нет лидера</p>
                         </div>
                     </div>
                     <div class="season-card" data-season="autumn">
                         <div class="season-title">Осень</div>
-                        <div class="season-slots" id="slots-autumn">
-                            <p class="empty-text">Пусто</p>
+                        <div class="season-winner" id="winner-autumn">
+                            <p class="empty-text">Нет лидера</p>
                         </div>
                     </div>
                 </div>
@@ -56,14 +60,35 @@
 
             <hr class="section-divider">
 
-            <div class="title-section">
-                <label class="field-label">Название проекта</label>
-                <div class="search-container">
-                    <input type="text" id="titleInput" class="title-input" placeholder="Начните вводить название аниме..." autocomplete="off">
-                    <div id="searchResults" class="search-results hidden"></div>
+            <!-- ФОРМА ВВОДА ДАННЫХ АНИМЕ -->
+            <div class="inputs-block">
+                <div class="input-group">
+                    <label class="field-label">Название проекта</label>
+                    <input type="text" id="titleInput" class="custom-input" placeholder="Например: Атака титанов..." autocomplete="off">
+                </div>
+
+                <div class="input-row-3">
+                    <div class="input-group">
+                        <label class="field-label">Студия</label>
+                        <input type="text" id="studioInput" class="custom-input" placeholder="MAPPA, Wit..." autocomplete="off">
+                    </div>
+                    <div class="input-group">
+                        <label class="field-label">Жанры</label>
+                        <input type="text" id="genresInput" class="custom-input" placeholder="Экшен, Драма..." autocomplete="off">
+                    </div>
+                    <div class="input-group">
+                        <label class="field-label">Год выхода</label>
+                        <input type="number" id="yearInput" class="custom-input" placeholder="2026" min="1950" max="2100">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="field-label">Ссылка на обложку (URL картинки)</label>
+                    <input type="text" id="posterInput" class="custom-input" placeholder="https://example.com/poster.jpg" autocomplete="off">
                 </div>
             </div>
 
+            <!-- Сетка основных критериев (по 10 баллов) -->
             <div class="main-grid">
                 <div class="item">
                     <label>Сюжет</label>
@@ -109,6 +134,7 @@
                 </div>
             </div>
 
+            <!-- Плашка дополнительных критериев (по 5 баллов) -->
             <div class="extra-card">
                 <div class="item">
                     <label>Реализация</label>
@@ -126,6 +152,7 @@
                 </div>
             </div>
 
+            <!-- Выбор сезона -->
             <div class="season-select-section">
                 <label class="field-label">Выберите сезон для этого аниме</label>
                 <div class="season-toggle-group">
@@ -143,6 +170,7 @@
                 <div id="totalScore">0</div>
             </div>
 
+            <!-- История оценок -->
             <div class="history-container">
                 <div class="history-header">
                     <h3>История оценок</h3>
@@ -155,6 +183,7 @@
             </div>
         </section>
 
+        <!-- ЭКРАН 2: ТОП-25 -->
         <section id="top25Tab" class="tab-content hidden">
             <div class="top25-header">
                 <h3>Зал Славы (Топ-25 лучших аниме)</h3>
@@ -168,4 +197,4 @@
 
     <script src="script.js"></script>
 </body>
-</html> 
+</html>
