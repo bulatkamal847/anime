@@ -1,82 +1,249 @@
-// ==========================================
-// ИНТЕГРАЦИЯ С SHIKIMORI API (ЧЕРЕЗ CORS ПРОКСИ) 
-// ==========================================
-let searchTimeout = null;
+:root {
+    --bg-main: #0b0f19;
+    --bg-container: #131a2c;
+    --bg-card: rgba(30, 41, 59, 0.5);
+    --primary: #2563EB;
+    --primary-glow: rgba(37, 99, 235, 0.4);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border: #1e293b;
+}
 
-titleInput.addEventListener('input', () => {
-    clearTimeout(searchTimeout);
-    const query = titleInput.value.trim();
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    margin: 0;
+}
 
-    if (query.length < 3) {
-        searchResults.classList.add('hidden');
-        return;
-    }
+.container {
+    background: var(--bg-container);
+    width: 100%;
+    max-width: 850px;
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    border: 1px solid #1e293b;
+    box-sizing: border-box;
+}
 
-    searchTimeout = setTimeout(() => {
-        // Базовый URL Шикимори
-        const shikimoriUrl = `https://shikimori.one/api/animes?search=${encodeURIComponent(query)}&limit=5`;
-        
-        // Оборачиваем в бесплатный CORS-прокси для Гитхаба
-        const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(shikimoriUrl)}`;
+/* НАВИГАЦИЯ */
+.tabs-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 35px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 15px;
+}
+.tab-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    padding: 12px 24px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: 0.2s ease;
+}
+.tab-btn:hover { color: var(--text-main); background: rgba(255,255,255,0.02); }
+.tab-btn.active {
+    color: #fff; background: var(--primary); border-color: var(--primary);
+    box-shadow: 0 4px 15px var(--primary-glow);
+}
 
-        fetch(proxyUrl)
-            .then(res => res.json())
-            .then(data => {
-                if (!data || data.length === 0) {
-                    searchResults.innerHTML = `
-                        <div class="search-item" style="cursor: default; pointer-events: none;">
-                            <span class="anime-title" style="color: var(--text-muted)">Ничего не найдено</span>
-                        </div>
-                    `;
-                    searchResults.classList.remove('hidden');
-                    return;
-                }
-                
-                searchResults.innerHTML = data.map(anime => {
-                    const year = anime.aired_on ? anime.aired_on.split('-')[0] : '—';
-                    // Формируем полную ссылку на постер (Шикимори отдает относительный путь)
-                    const posterUrl = anime.image && anime.image.preview 
-                        ? `https://shikimori.one${anime.image.preview}` 
-                        : 'https://placehold.co/40x60/1e293b/fff?text=?';
+.tab-content { animation: fadeIn 0.3s ease-in-out; }
+.hidden { display: none !important; }
 
-                    return `
-                        <div class="search-item" data-title="${anime.russian || anime.name}" data-year="${year}">
-                            <img src="${posterUrl}" class="search-poster" alt="poster">
-                            <div class="search-info">
-                                <span class="anime-title">${anime.russian || anime.name}</span>
-                                <span class="anime-meta">${year} г.</span>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-                
-                searchResults.classList.remove('hidden');
-            })
-            .catch(err => {
-                console.error('Ошибка поиска Шикимори:', err);
-                searchResults.innerHTML = `
-                    <div class="search-item" style="cursor: default; pointer-events: none;">
-                        <span class="anime-title" style="color: #ef4444">Ошибка сети (введите название вручную)</span>
-                    </div>
-                `;
-                searchResults.classList.remove('hidden');
-            });
-    }, 400); // Задержка, чтобы не спамить запросами при каждой букве
-});
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-// Клик по результату поиска
-searchResults.addEventListener('click', (e) => {
-    const item = e.target.closest('.search-item');
-    if (!item || item.style.pointerEvents === 'none') return;
+/* БЛОК СЕЗОНОВ ВВЕРХУ */
+.seasons-archive-container {
+    margin-bottom: 25px;
+}
+.archive-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.archive-header h3 { margin: 0; font-size: 1.2rem; font-weight: 700; }
+.archive-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.year-select {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    height: 38px;
+    box-sizing: border-box;
+}
+.season-danger-btn {
+    height: 38px;
+    padding: 0 14px !important;
+    display: flex;
+    align-items: center;
+    background: rgba(239, 68, 68, 0.05) !important;
+    border-color: rgba(239, 68, 68, 0.2) !important;
+    color: #ef4444 !important;
+}
+.season-danger-btn:hover {
+    background: #ef4444 !important;
+    color: white !important;
+    border-color: #ef4444 !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
 
-    titleInput.value = item.getAttribute('data-title');
-    selectedAnimeYear = item.getAttribute('data-year');
-    searchResults.classList.add('hidden');
-});
+.seasons-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+.season-card {
+    background: rgba(30, 41, 59, 0.3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.season-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding-bottom: 5px;
+}
+.season-slots {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 70px;
+}
+.slot-item {
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    justify-content: space-between;
+    background: rgba(11, 15, 25, 0.5);
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+.slot-score { font-weight: 800; font-size: 0.8rem; padding-left: 5px; }
 
-// Закрытие поиска при клике в любое другое место страницы
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.search-container')) {
-        searchResults.classList.add('hidden');
-    }
-});
+.section-divider {
+    border: 0;
+    height: 1px;
+    background: var(--border);
+    margin: 30px 0;
+}
+
+/* ВЫБОР СЕЗОНА ПРИ ОЦЕНКЕ */
+.season-select-section { margin-bottom: 30px; }
+.season-toggle-group { display: flex; gap: 10px; }
+.season-btn {
+    flex: 1; background: var(--bg-card); border: 1.5px solid var(--border);
+    color: var(--text-muted); padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.15s;
+}
+.season-btn:hover { border-color: rgba(255,255,255,0.1); color: white; }
+.season-btn.active { background: rgba(37, 99, 235, 0.15); border-color: var(--primary); color: #fff; }
+
+/* УМНЫЙ ПОИСК */
+.search-container { position: relative; width: 100%; }
+.search-results {
+    position: absolute; top: calc(100% + 5px); left: 0; width: 100%;
+    background: #131a2c; border: 1.5px solid var(--border); border-radius: 14px;
+    max-height: 280px; overflow-y: auto; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.6); box-sizing: border-box;
+}
+.search-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.02); transition: 0.15s ease; }
+.search-item:last-child { border-bottom: none; }
+.search-item:hover { background: rgba(37, 99, 235, 0.15); }
+.search-item .anime-title { font-weight: 600; color: #fff; }
+.search-item .anime-meta { font-size: 0.85rem; color: var(--text-muted); }
+
+/* Шапка ТОП-25 */
+.top25-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+.top25-header h3 { margin: 0; font-size: 1.3rem; font-weight: 700; }
+.danger-btn { background: rgba(239, 68, 68, 0.1) !important; border-color: rgba(239, 68, 68, 0.3) !important; color: #ef4444 !important; }
+.danger-btn:hover { background: #ef4444 !important; color: white !important; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+
+/* Конструктор полей */
+.title-section { margin-bottom: 30px; }
+.field-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+.title-input {
+    width: 100%; padding: 16px; background: var(--bg-card); border: 1.5px solid var(--border);
+    border-radius: 14px; font-size: 1.1rem; font-weight: 600; color: white; outline: none; transition: 0.2s; box-sizing: border-box;
+}
+.title-input:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+
+.main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 35px; margin-bottom: 30px; }
+.extra-card { 
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8)); 
+    padding: 25px; border-radius: 18px; margin-bottom: 35px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px 35px; border: 1px solid rgba(255,255,255,0.02);
+}
+
+.item label { display: block; margin-bottom: 12px; font-weight: 700; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.range-row { display: flex; align-items: center; gap: 14px; position: relative; width: 100%; }
+.range-row span { min-width: 25px; font-weight: 800; color: #fff; text-align: right; font-size: 1.1rem; text-shadow: 0 0 8px rgba(255,255,255,0.2); z-index: 3; }
+
+input[type="range"] { -webkit-appearance: none; width: 100%; height: 8px; border-radius: 10px; background: #1e293b; outline: none; cursor: pointer; position: relative; margin: 0; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: transparent; border: none; position: relative; z-index: 5; cursor: pointer; }
+.range-row::after { content: 'ஐ'; position: absolute; color: #fff; font-size: 1.6rem; font-weight: normal; pointer-events: none; left: calc(var(--percent, 50%) * 0.86 - 2px); top: 50%; transform: translateY(-55%); text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary); transition: transform 0.1s ease, text-shadow 0.2s, color 0.2s; z-index: 2; }
+.range-row:hover::after { color: #3b82f6; text-shadow: 0 0 15px #3b82f6; }
+
+.primary-btn { width: 100%; padding: 18px; background: linear-gradient(90deg, #1d4ed8, #2563EB); color: white; border: none; border-radius: 14px; font-weight: 700; font-size: 1.05rem; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); }
+.primary-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px var(--primary-glow); }
+
+.result-box { text-align: center; padding: 25px; margin-top: 25px; background: rgba(15, 23, 42, 0.6); border-radius: 16px; border: 1px solid var(--border); }
+.result-box p { color: var(--text-muted); margin: 0; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+#totalScore { font-size: 5rem; font-weight: 900; line-height: 1; margin-top: 10px; text-shadow: 0 0 30px var(--primary-glow); }
+
+.history-container { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 30px; }
+.history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px; }
+.history-header h3 { margin: 0; font-size: 1.3rem; font-weight: 700; white-space: nowrap; }
+.history-actions { display: flex; gap: 12px; }
+
+.export-btn, .clear-btn { background: var(--bg-card); border: 1px solid var(--border); padding: 10px 18px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.85rem; color: var(--text-main); transition: 0.2s; white-space: nowrap; }
+.export-btn:hover { background: #1e293b; border-color: #3b82f6; }
+.clear-btn:hover { background: #271c24; border-color: #ef4444; color: #ef4444; }
+
+.history-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: rgba(22, 30, 49, 0.7); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; border-left: 5px solid var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+.history-item b { font-size: 1.05rem; color: #fff; padding-right: 10px; word-break: break-word; }
+.score-badge { font-weight: 800; padding: 6px 14px; border-radius: 8px; background: var(--bg-main); font-size: 1.05rem; border: 1px solid var(--border); }
+.empty-text { font-size: 0.95rem; color: var(--text-muted); font-style: italic; margin: 0; }
+
+/* АДАПТИВ */
+@media (max-width: 768px) {
+    .seasons-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+    .tabs-nav { justify-content: space-between; }
+    .tab-btn { flex: 1; text-align: center; padding: 10px 5px; font-size: 0.95rem; }
+    .seasons-grid { grid-template-columns: 1fr; }
+    .season-toggle-group { display: grid; grid-template-columns: 1fr 1fr; }
+    .top25-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .main-grid, .extra-card { grid-template-columns: 1fr; gap: 20px; }
+    .range-row::after { font-size: 1.5rem; left: calc(var(--percent, 50%) * 0.74 + 4px); }
+    .history-header { flex-direction: column; align-items: flex-start; gap: 14px; }
+    .history-actions { width: 100%; }
+    .export-btn, .clear-btn { flex: 1; text-align: center; justify-content: center; padding: 12px; font-size: 0.8rem; }
+}
