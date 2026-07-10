@@ -6,8 +6,13 @@ const totalScoreDisplay = document.getElementById('totalScore');
 const resultArea = document.getElementById('resultArea');
 const historyList = document.getElementById('historyList');
 
+// Поля ручного ввода
 const titleInput = document.getElementById('titleInput');
-const searchResults = document.getElementById('searchResults');
+const studioInput = document.getElementById('studioInput');
+const genresInput = document.getElementById('genresInput');
+const yearInput = document.getElementById('yearInput');
+const posterInput = document.getElementById('posterInput');
+
 const top25List = document.getElementById('top25List');
 const clearTopBtn = document.getElementById('clearTopBtn');
 
@@ -16,18 +21,18 @@ const clearSeasonsBtn = document.getElementById('clearSeasonsBtn');
 const seasonBtns = document.querySelectorAll('.season-btn');
 
 // Системные переменные
-let selectedAnimeYear = null;
 let currentSelectedSeason = 'winter';
 const currentSystemYear = new Date().getFullYear();
 
-// РАЗДЕЛЬНАЯ ПАМЯТЬ ЛОКАЛСТОРАДЖА
+// Установка дефолтного года в поле ввода
+yearInput.value = currentSystemYear;
+
+// БАЗА ДАННЫХ ИЗ LOCALSTORAGE
 let evaluations = JSON.parse(localStorage.getItem('animeRates')) || [];
 let top25Data = JSON.parse(localStorage.getItem('animeTop25')) || [];
 let seasonsData = JSON.parse(localStorage.getItem('animeSeasonsTop')) || {};
 
-// ==========================================
-// АВТОУДАЛЕНИЕ ДАННЫХ СТАРШЕ 5 ЛЕТ
-// ==========================================
+// Автоочистка данных старше 5 лет
 function cleanOldSeasonsData() {
     let changed = false;
     for (let year in seasonsData) {
@@ -36,15 +41,11 @@ function cleanOldSeasonsData() {
             changed = true;
         }
     }
-    if (changed) {
-        localStorage.setItem('animeSeasonsTop', JSON.stringify(seasonsData));
-    }
+    if (changed) localStorage.setItem('animeSeasonsTop', JSON.stringify(seasonsData));
 }
 cleanOldSeasonsData();
 
-// ==========================================
 // НАСТРОЙКА ВЫПАДАЮЩЕГО СПИСКА ГОДОВ
-// ==========================================
 function initYearSelect() {
     const years = Object.keys(seasonsData).map(Number);
     if (!years.includes(currentSystemYear)) {
@@ -56,12 +57,11 @@ function initYearSelect() {
     archiveYearSelect.value = currentSystemYear;
 }
 
-// Переключение года в архиве топов
 archiveYearSelect.addEventListener('change', () => {
     renderSeasonsTop(parseInt(archiveYearSelect.value));
 });
 
-// Переключение кнопок сезона в форме оценки
+// Переключение кнопок сезона
 seasonBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         seasonBtns.forEach(b => b.classList.remove('active'));
@@ -70,47 +70,39 @@ seasonBtns.forEach(btn => {
     });
 });
 
-// ВЫВОД ТОП-3 ПО СЕЗОНАМ НА ЭКРАН
+// РЕНДЕР КОРОЛЯ СЕЗОНА (1 ТАЙТЛ НА СЕЗОН С ПОСТЕРОМ)
 function renderSeasonsTop(year) {
     const seasons = ['winter', 'spring', 'summer', 'autumn'];
     const yearData = seasonsData[year] || {};
 
     seasons.forEach(s => {
-        const slotsContainer = document.getElementById(`slots-${s}`);
-        const list = yearData[s] || [];
+        const winnerContainer = document.getElementById(`winner-${s}`);
+        const leader = yearData[s]; // Тут теперь лежит один объект, а не массив
 
-        if (list.length === 0) {
-            slotsContainer.innerHTML = '<p class="empty-text">Пусто</p>';
+        if (!leader) {
+            winnerContainer.innerHTML = '<p class="empty-text">Нет лидера</p>';
             return;
         }
 
-        slotsContainer.innerHTML = list.map((item, index) => `
-            <div class="slot-item" title="${item.name}">
-                <span>${index + 1}. ${item.name}</span>
-                <span class="slot-score" style="color: ${item.color}">${item.score}</span>
-            </div>
-        `).join('');
+        winnerContainer.innerHTML = `
+            <img src="${leader.poster}" class="winner-poster" alt="poster">
+            <span class="winner-title" title="${leader.name}">${leader.name}</span>
+            <span class="winner-meta">${leader.studio || 'Без студии'}</span>
+            <div class="winner-score" style="color: ${leader.color}">${leader.score}</div>
+        `;
     });
 }
 
-// ДОБАВЛЕНИЕ АНИМЕ В ТОП-3 СЕЗОНА
+// ОБНОВЛЕНИЕ ЛИДЕРА СЕЗОНА (ОСТАЕТСЯ ТОЛЬКО 1 ЛУЧШИЙ)
 function checkAndAddToSeasonsTop(newEntry, targetYear) {
     if (!seasonsData[targetYear]) seasonsData[targetYear] = {};
-    if (!seasonsData[targetYear][currentSelectedSeason]) seasonsData[targetYear][currentSelectedSeason] = [];
+    
+    const currentLeader = seasonsData[targetYear][currentSelectedSeason];
 
-    let currentList = seasonsData[targetYear][currentSelectedSeason];
-
-    const existingIndex = currentList.findIndex(item => item.name.toLowerCase() === newEntry.name.toLowerCase());
-    if (existingIndex !== -1) {
-        if (newEntry.score > currentList[existingIndex].score) {
-            currentList[existingIndex] = newEntry;
-        }
-    } else {
-        currentList.push(newEntry);
+    // Если лидера еще нет, или новая оценка выше текущего лидера — перезаписываем слот
+    if (!currentLeader || newEntry.score > currentLeader.score) {
+        seasonsData[targetYear][currentSelectedSeason] = newEntry;
     }
-
-    currentList.sort((a, b) => b.score - a.score);
-    seasonsData[targetYear][currentSelectedSeason] = currentList.slice(0, 3);
 
     localStorage.setItem('animeSeasonsTop', JSON.stringify(seasonsData));
     
@@ -119,7 +111,7 @@ function checkAndAddToSeasonsTop(newEntry, targetYear) {
     renderSeasonsTop(targetYear);
 }
 
-// ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ВКЛАДОК
+// ЛОГИКА ТАБОВ
 const tabButtons = document.querySelectorAll('.tab-btn');
 const tabContents = document.querySelectorAll('.tab-content');
 
@@ -127,75 +119,16 @@ tabButtons.forEach(btn => {
     btn.addEventListener('click', () => {
         tabButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-
         const targetTabId = btn.getAttribute('data-tab');
         tabContents.forEach(content => {
-            if (content.id === targetTabId) {
-                content.classList.remove('hidden');
-            } else {
-                content.classList.add('hidden');
-            }
+            content.id === targetTabId ? content.classList.remove('hidden') : content.classList.add('hidden');
         });
     });
 });
 
-// ИНТЕГРАЦИЯ С SHIKIMORI API
-let searchTimeout = null;
-
-titleInput.addEventListener('input', () => {
-    clearTimeout(searchTimeout);
-    const query = titleInput.value.trim();
-
-    if (query.length < 3) {
-        searchResults.classList.add('hidden');
-        return;
-    }
-
-    searchTimeout = setTimeout(() => {
-        fetch(`https://shikimori.one/api/animes?search=${encodeURIComponent(query)}&limit=5`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.length === 0) {
-                    searchResults.classList.add('hidden');
-                    return;
-                }
-                
-                searchResults.innerHTML = data.map(anime => {
-                    const year = anime.aired_on ? anime.aired_on.split('-')[0] : '—';
-                    return `
-                        <div class="search-item" data-title="${anime.russian || anime.name}" data-year="${year}">
-                            <span class="anime-title">${anime.russian || anime.name}</span>
-                            <span class="anime-meta">${year} г.</span>
-                        </div>
-                    `;
-                }).join('');
-                
-                searchResults.classList.remove('hidden');
-            })
-            .catch(err => console.error('Ошибка поиска Шикимори:', err));
-    }, 400);
-});
-
-searchResults.addEventListener('click', (e) => {
-    const item = e.target.closest('.search-item');
-    if (!item) return;
-
-    titleInput.value = item.getAttribute('data-title');
-    selectedAnimeYear = item.getAttribute('data-year');
-    searchResults.classList.add('hidden');
-});
-
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.search-container')) {
-        searchResults.classList.add('hidden');
-    }
-});
-
-
-// ЛОГИКА ДЛЯ ТОП-25 (ЗАЛ СЛАВЫ)
+// ЛОГИКА ДЛЯ ТОП-25
 function renderTop25() {
     top25List.innerHTML = '';
-    
     if (top25Data.length === 0) {
         top25List.innerHTML = '<p class="empty-text">Топ-25 пока пуст. Оценивайте аниме на Главной!</p>';
         return;
@@ -206,7 +139,13 @@ function renderTop25() {
         div.className = 'history-item';
         div.style.borderLeftColor = item.color;
         div.innerHTML = `
-            <b>${index + 1}. ${item.name}</b>
+            <div class="history-left">
+                <img src="${item.poster}" class="history-poster" alt="poster">
+                <div class="history-info">
+                    <b>${index + 1}. ${item.name}</b>
+                    <span class="history-meta-text">${item.year} г. • Студия: ${item.studio}</span>
+                </div>
+            </div>
             <div class="score-badge" style="color: ${item.color}">${item.score}</div>
         `;
         top25List.appendChild(div);
@@ -226,13 +165,11 @@ function checkAndAddToTop25(newEntry) {
 
     top25Data.sort((a, b) => b.score - a.score);
     top25Data = top25Data.slice(0, 25);
-
     localStorage.setItem('animeTop25', JSON.stringify(top25Data));
     renderTop25();
 }
 
-
-// Обновление интерфейса истории
+// РЕНДЕР ИСТОРЫ ОЦЕНОК
 function renderHistory() {
     historyList.innerHTML = '';
     if (evaluations.length === 0) {
@@ -244,21 +181,26 @@ function renderHistory() {
         div.className = 'history-item';
         div.style.borderLeftColor = item.color;
         div.innerHTML = `
-            <b>${item.name}</b>
+            <div class="history-left">
+                <img src="${item.poster}" class="history-poster" alt="poster">
+                <div class="history-info">
+                    <b>${item.name}</b>
+                    <span class="history-meta-text">${item.year} г. • ${item.genres} [${item.studio}]</span>
+                </div>
+            </div>
             <div class="score-badge" style="color: ${item.color}">${item.score}</div>
         `;
         historyList.appendChild(div);
     });
 }
 
-// Заполнение цвета ползунков
+// Покраска ползунков
 function updateSliderColor(slider) {
     const percent = (slider.value - slider.min) / (slider.max - slider.min) * 100;
     slider.style.background = `linear-gradient(to right, #2563EB ${percent}%, #1e293b ${percent}%)`;
     slider.parentElement.style.setProperty('--percent', `${percent}%`);
 }
 
-// Инициализация ползунков
 sliders.forEach(slider => {
     slider.addEventListener('input', () => {
         document.getElementById(slider.id + 'Val').textContent = slider.value;
@@ -267,9 +209,16 @@ sliders.forEach(slider => {
     updateSliderColor(slider);
 });
 
-// Логика расчета
+// РАСЧЕТ И СОХРАНЕНИЕ С РУЧНЫМИ ДАННЫМИ
 calcBtn.addEventListener('click', () => {
     const name = titleInput.value.trim() || "Без названия";
+    const studio = studioInput.value.trim() || "Не указана";
+    const genres = genresInput.value.trim() || "Не указаны";
+    const year = parseInt(yearInput.value) || currentSystemYear;
+    
+    // Дефолтная заглушка-постер, если пользователь оставил поле пустым
+    const defaultPoster = 'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=300&auto=format&fit=crop';
+    const poster = posterInput.value.trim() || defaultPoster;
     
     let currentSum = 0;
     let maxSum = 0;
@@ -290,13 +239,10 @@ calcBtn.addEventListener('click', () => {
     totalScoreDisplay.style.color = statusColor;
     totalScoreDisplay.style.textShadow = `0 0 30px ${statusColor}66`;
 
-    const finalYear = selectedAnimeYear && selectedAnimeYear !== '—' ? parseInt(selectedAnimeYear) : currentSystemYear;
-
     const entry = { 
-        name, 
+        name, studio, genres, year, poster,
         score: finalScore, 
         color: statusColor, 
-        year: finalYear,
         date: new Date().toISOString() 
     };
     
@@ -304,10 +250,15 @@ calcBtn.addEventListener('click', () => {
     localStorage.setItem('animeRates', JSON.stringify(evaluations));
     
     checkAndAddToTop25(entry);
-    checkAndAddToSeasonsTop(entry, finalYear);
+    checkAndAddToSeasonsTop(entry, year);
     
-    selectedAnimeYear = null;
+    // Очищаем форму
     titleInput.value = '';
+    studioInput.value = '';
+    genresInput.value = '';
+    posterInput.value = '';
+    yearInput.value = currentSystemYear;
+    
     renderHistory();
     resultArea.scrollIntoView({ behavior: 'smooth' });
 });
@@ -325,49 +276,41 @@ exportBtn.addEventListener('click', () => {
     URL.revokeObjectURL(url);
 });
 
-// Очистка оперативной истории
+// Очистить историю
 clearBtn.addEventListener('click', () => {
     if (evaluations.length === 0) return alert("История и так пуста!");
-    if (confirm("Вы уверены, что хотите очистить историю последних оценок? Топ-25 и архивы сезонов при этом сохранятся.")) {
+    if (confirm("Очистить историю последних оценок? Топы сохранятся.")) {
         evaluations = [];
         localStorage.removeItem('animeRates');
         renderHistory();
     }
 });
 
-// Отдельная очистка Топ-25
+// Очистить Топ-25
 clearTopBtn.addEventListener('click', () => {
-    if (top25Data.length === 0) return alert("Топ-25 и так пуст!");
-    if (confirm("ВНИМАНИЕ! Вы уверены, что хотите ПОЛНОСТЬЮ СБРОСИТЬ ваш Топ-25 (Зал Славы)?")) {
+    if (top25Data.length === 0) return alert("Топ-25 пуст!");
+    if (confirm("Вы уверены, что хотите сбросить Топ-25 (Зал Славы)?")) {
         top25Data = [];
         localStorage.removeItem('animeTop25');
         renderTop25();
     }
 });
 
-// КНОПКА СБРОСА ТОПА СЕЗОНОВ ЗА КОНКРЕТНЫЙ ГОД
+// Сброс топа сезонов за год
 clearSeasonsBtn.addEventListener('click', () => {
     const selectedYear = parseInt(archiveYearSelect.value);
-    
-    // Проверяем, есть ли вообще данные в этом году
     if (!seasonsData[selectedYear] || Object.keys(seasonsData[selectedYear]).length === 0) {
-        return alert(`Архив за ${selectedYear} год и так пуст!`);
+        return alert(`Архив за ${selectedYear} год пуст!`);
     }
-
-    if (confirm(`Вы уверены, что хотите полностью очистить топ сезонов за ${selectedYear} год? Данные за другие года останутся.`)) {
-        // Удаляем конкретный год из объекта
+    if (confirm(`Удалить лидеров сезонов за ${selectedYear} год?`)) {
         delete seasonsData[selectedYear];
-        
-        // Сохраняем обновленный объект в LocalStorage
         localStorage.setItem('animeSeasonsTop', JSON.stringify(seasonsData));
-        
-        // Переинициализируем выпадающий список годов и обновляем экран
         initYearSelect();
         renderSeasonsTop(parseInt(archiveYearSelect.value));
     }
 });
 
-// Инициализация при запуске страницы
+// Старт инициализации
 initYearSelect();
 renderHistory();
 renderTop25();
