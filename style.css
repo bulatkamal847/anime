@@ -30,7 +30,7 @@ body {
     box-sizing: border-box;
 }
 
-/* НАВИГАЦИЯ */
+/* НАВИГАЦИЯ */ 
 .tabs-nav {
     display: flex;
     gap: 10px;
