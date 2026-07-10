@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -9,90 +9,110 @@
 <body>
 
     <div class="container">
-        <div class="title-section">
-            <label class="field-label">Название проекта</label>
-            <input type="text" id="titleInput" class="title-input" placeholder="Введите название...">
-        </div>
+        <nav class="tabs-nav">
+            <button class="tab-btn active" data-tab="mainTab">Главная</button>
+            <button class="tab-btn" data-tab="top25Tab">Топ-25</button>
+        </nav>
 
-        <div class="main-grid">
-            <div class="item">
-                <label>Сюжет</label>
-                <div class="range-row">
-                    <input type="range" min="0" max="10" value="5" class="slider" id="story">
-                    <span id="storyVal">5</span>
+        <section id="mainTab" class="tab-content">
+            <div class="title-section">
+                <label class="field-label">Название проекта</label>
+                <div class="search-container">
+                    <input type="text" id="titleInput" class="title-input" placeholder="Начните вводить название аниме..." autocomplete="off">
+                    <div id="searchResults" class="search-results hidden"></div>
                 </div>
             </div>
-            <div class="item">
-                <label>Персонажи / Рисовка</label>
-                <div class="range-row">
-                    <input type="range" min="0" max="10" value="5" class="slider" id="chars">
-                    <span id="charsVal">5</span>
-                </div>
-            </div>
-            <div class="item">
-                <label>Анимация</label>
-                <div class="range-row">
-                    <input type="range" min="0" max="10" value="5" class="slider" id="visual">
-                    <span id="visualVal">5</span>
-                </div>
-            </div>
-            <div class="item">
-                <label>Музыка</label>
-                <div class="range-row">
-                    <input type="range" min="0" max="10" value="5" class="slider" id="music">
-                    <span id="musicVal">5</span>
-                </div>
-            </div>
-            <div class="item">
-                <label>Оригинальность</label>
-                <div class="range-row">
-                    <input type="range" min="0" max="10" value="5" class="slider" id="originality">
-                    <span id="originalityVal">5</span>
-                </div>
-            </div>
-            <div class="item">
-                <label>Финал</label>
-                <div class="range-row">
-                    <input type="range" min="0" max="10" value="5" class="slider" id="ending">
-                    <span id="endingVal">5</span>
-                </div>
-            </div>
-        </div>
 
-        <div class="extra-card">
-            <div class="item">
-                <label>Реализация</label>
-                <div class="range-row">
-                    <input type="range" min="0" max="5" value="3" class="slider" id="real">
-                    <span id="realVal">3</span>
+            <div class="main-grid">
+                <div class="item">
+                    <label>Сюжет</label>
+                    <div class="range-row">
+                        <input type="range" min="0" max="10" value="5" class="slider" id="story">
+                        <span id="storyVal">5</span>
+                    </div>
+                </div>
+                <div class="item">
+                    <label>Персонажи / Рисовка</label>
+                    <div class="range-row">
+                        <input type="range" min="0" max="10" value="5" class="slider" id="chars">
+                        <span id="charsVal">5</span>
+                    </div>
+                </div>
+                <div class="item">
+                    <label>Анимация</label>
+                    <div class="range-row">
+                        <input type="range" min="0" max="10" value="5" class="slider" id="visual">
+                        <span id="visualVal">5</span>
+                    </div>
+                </div>
+                <div class="item">
+                    <label>Музыка</label>
+                    <div class="range-row">
+                        <input type="range" min="0" max="10" value="5" class="slider" id="music">
+                        <span id="musicVal">5</span>
+                    </div>
+                </div>
+                <div class="item">
+                    <label>Оригинальность</label>
+                    <div class="range-row">
+                        <input type="range" min="0" max="10" value="5" class="slider" id="originality">
+                        <span id="originalityVal">5</span>
+                    </div>
+                </div>
+                <div class="item">
+                    <label>Финал</label>
+                    <div class="range-row">
+                        <input type="range" min="0" max="10" value="5" class="slider" id="ending">
+                        <span id="endingVal">5</span>
+                    </div>
                 </div>
             </div>
-            <div class="item">
-                <label>Вайб / Атмосфера</label>
-                <div class="range-row">
-                    <input type="range" min="0" max="5" value="3" class="slider" id="vibe">
-                    <span id="vibeVal">3</span>
+
+            <div class="extra-card">
+                <div class="item">
+                    <label>Реализация</label>
+                    <div class="range-row">
+                        <input type="range" min="0" max="5" value="3" class="slider" id="real">
+                        <span id="realVal">3</span>
+                    </div>
+                </div>
+                <div class="item">
+                    <label>Вайб / Атмосфера</label>
+                    <div class="range-row">
+                        <input type="range" min="0" max="5" value="3" class="slider" id="vibe">
+                        <span id="vibeVal">3</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <button id="calcBtn" class="primary-btn">Подсчитать и сохранить</button>
+            <button id="calcBtn" class="primary-btn">Подсчитать и сохранить</button>
 
-        <div id="resultArea" class="result-box hidden">
-            <p>Итоговый результат:</p>
-            <div id="totalScore">0</div>
-        </div>
-
-        <div class="history-container">
-            <div class="history-header">
-                <h3>История оценок</h3>
-                <div class="history-actions">
-                    <button id="exportBtn" class="export-btn">💾 Сохранить JSON</button>
-                    <button id="clearBtn" class="clear-btn">🗑️ Очистить историю</button>
-                </div>
+            <div id="resultArea" class="result-box hidden">
+                <p>Итоговый результат:</p>
+                <div id="totalScore">0</div>
             </div>
-            <div id="historyList" class="history-list"></div>
-        </div>
+
+            <div class="history-container">
+                <div class="history-header">
+                    <h3>История оценок</h3>
+                    <div class="history-actions">
+                        <button id="exportBtn" class="export-btn">Сохранить JSON</button>
+                        <button id="clearBtn" class="clear-btn">Очистить историю</button>
+                    </div>
+                </div>
+                <div id="historyList" class="history-list"></div>
+            </div>
+        </section>
+
+        <section id="top25Tab" class="tab-content hidden">
+            <div class="top25-header">
+                <h3>Зал Славы (Топ-25 лучших аниме)</h3>
+                <button id="clearTopBtn" class="clear-btn danger-btn">Сбросить Топ-25</button>
+            </div>
+            <div id="top25List" class="top25-list">
+                <p class="empty-text">Топ-25 пока пуст. Оценивайте аниме на Главной!</p>
+            </div>
+        </section>
     </div>
 
     <script src="script.js"></script>
