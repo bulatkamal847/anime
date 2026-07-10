@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -15,6 +15,47 @@
         </nav>
 
         <section id="mainTab" class="tab-content">
+            
+            <div class="seasons-archive-container">
+                <div class="archive-header">
+                    <h3>Топ сезонов</h3>
+                    <div class="archive-actions">
+                        <select id="archiveYearSelect" class="year-select">
+                            </select>
+                        <button id="clearSeasonsBtn" class="clear-btn season-danger-btn">Сбросить год</button>
+                    </div>
+                </div>
+                
+                <div class="seasons-grid">
+                    <div class="season-card" data-season="winter">
+                        <div class="season-title">Зима</div>
+                        <div class="season-slots" id="slots-winter">
+                            <p class="empty-text">Пусто</p>
+                        </div>
+                    </div>
+                    <div class="season-card" data-season="spring">
+                        <div class="season-title">Весна</div>
+                        <div class="season-slots" id="slots-spring">
+                            <p class="empty-text">Пусто</p>
+                        </div>
+                    </div>
+                    <div class="season-card" data-season="summer">
+                        <div class="season-title">Лето</div>
+                        <div class="season-slots" id="slots-summer">
+                            <p class="empty-text">Пусто</p>
+                        </div>
+                    </div>
+                    <div class="season-card" data-season="autumn">
+                        <div class="season-title">Осень</div>
+                        <div class="season-slots" id="slots-autumn">
+                            <p class="empty-text">Пусто</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="section-divider">
+
             <div class="title-section">
                 <label class="field-label">Название проекта</label>
                 <div class="search-container">
@@ -82,6 +123,16 @@
                         <input type="range" min="0" max="5" value="3" class="slider" id="vibe">
                         <span id="vibeVal">3</span>
                     </div>
+                </div>
+            </div>
+
+            <div class="season-select-section">
+                <label class="field-label">Выберите сезон для этого аниме</label>
+                <div class="season-toggle-group">
+                    <button type="button" class="season-btn active" data-season="winter">Зима</button>
+                    <button type="button" class="season-btn" data-season="spring">Весна</button>
+                    <button type="button" class="season-btn" data-season="summer">Лето</button>
+                    <button type="button" class="season-btn" data-season="autumn">Осень</button>
                 </div>
             </div>
 
