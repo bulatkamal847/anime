@@ -157,7 +157,7 @@ body {
     margin: 30px 0;
 }
 
-/* ВЫБОР СЕЗОНА ПРИ ОЦЕНКЕ */
+/* ВЫБОР СЕЗОНА ПРИ ОЦЕНКЕ */ 
 .season-select-section { margin-bottom: 30px; }
 .season-toggle-group { display: flex; gap: 10px; }
 .season-btn {
@@ -231,7 +231,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24p
 .score-badge { font-weight: 800; padding: 6px 14px; border-radius: 8px; background: var(--bg-main); font-size: 1.05rem; border: 1px solid var(--border); }
 .empty-text { font-size: 0.95rem; color: var(--text-muted); font-style: italic; margin: 0; }
 
-/* АДАПТИВ */
+/* АДАПТИВ */ 
 @media (max-width: 768px) {
     .seasons-grid { grid-template-columns: 1fr 1fr; }
 }
