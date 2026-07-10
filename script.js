@@ -1,4 +1,4 @@
-const sliders = document.querySelectorAll('input[type="range"]');
+const sliders = document.querySelectorAll('input[type="range"]'); 
 const calcBtn = document.getElementById('calcBtn');
 const exportBtn = document.getElementById('exportBtn');
 const clearBtn = document.getElementById('clearBtn');
