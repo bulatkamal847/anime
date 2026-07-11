@@ -9,16 +9,22 @@
 <body>
 
     <div class="container">
+        <!-- КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ -->
+        <div class="theme-toggle-container">
+            <button id="themeToggleBtn" class="theme-btn" title="Сменить тему">🌙</button>
+        </div>
+
         <!-- НАВИГАЦИЯ МЕЖДУ ВКЛАДКАМИ -->
         <nav class="tabs-nav">
             <button class="tab-btn active" data-tab="mainTab">Главная</button>
             <button class="tab-btn" data-tab="top25Tab">Топ-25</button>
+            <button class="tab-btn" data-tab="profileTab">Профиль</button>
         </nav>
 
         <!-- ЭКРАН 1: ГЛАВНАЯ -->
         <section id="mainTab" class="tab-content">
             
-            <!-- ПАНЕЛЬ ТОП СЕЗОНОВ ПО ГОДАМ (ПО 1 НА СЕЗОН) -->
+            <!-- ПАНЕЛЬ ТОП СЕЗОНОВ ПО ГОДАМ -->
             <div class="seasons-archive-container">
                 <div class="archive-header">
                     <h3>Короли Сезонов (Лучшее за год)</h3>
@@ -60,7 +66,7 @@
 
             <hr class="section-divider">
 
-            <!-- ФОРМА ВВОДА ДАННЫХ АНИМЕ -->
+            <!-- ФОРМА ВВОД ДАННЫХ АНИМЕ -->
             <div class="inputs-block">
                 <div class="input-group">
                     <label class="field-label">Название проекта</label>
@@ -88,7 +94,7 @@
                 </div>
             </div>
 
-            <!-- Сетка основных критериев (по 10 баллов) -->
+            <!-- Сетка основных критериев -->
             <div class="main-grid">
                 <div class="item">
                     <label>Сюжет</label>
@@ -134,7 +140,7 @@
                 </div>
             </div>
 
-            <!-- Плашка дополнительных критериев (по 5 баллов) -->
+            <!-- Плашка дополнительных критериев -->
             <div class="extra-card">
                 <div class="item">
                     <label>Реализация</label>
@@ -175,10 +181,29 @@
                 <div class="history-header">
                     <h3>История оценок</h3>
                     <div class="history-actions">
-                        <button id="exportBtn" class="export-btn">Сохранить JSON</button>
                         <button id="clearBtn" class="clear-btn">Очистить историю</button>
                     </div>
                 </div>
+
+                <!-- ПАНЕЛЬ ФИЛЬТРОВ И ПОИСКА -->
+                <div class="filters-panel">
+                    <input type="text" id="searchHistoryInput" class="custom-input filter-search" placeholder="Поиск по названию...">
+                    <div class="filters-row">
+                        <select id="filterGenreSelect" class="year-select filter-select">
+                            <option value="">Все жанры</option>
+                        </select>
+                        <select id="filterStudioSelect" class="year-select filter-select">
+                            <option value="">Все студии</option>
+                        </select>
+                        <select id="sortHistorySelect" class="year-select filter-select">
+                            <option value="new">Сначала новые</option>
+                            <option value="old">Сначала старые</option>
+                            <option value="scoreDesc">Балл: по убыванию</option>
+                            <option value="scoreAsc">Балл: по возрастанию</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div id="historyList" class="history-list"></div>
             </div>
         </section>
@@ -187,12 +212,94 @@
         <section id="top25Tab" class="tab-content hidden">
             <div class="top25-header">
                 <h3>Зал Славы (Топ-25 лучших аниме)</h3>
-                <button id="clearTopBtn" class="clear-btn danger-btn">Сбросить Топ-25</button>
+                <div class="top25-actions">
+                    <button id="exportRatesBtn" class="export-btn" title="Сохранить оценки в JSON">Экспорт базы</button>
+                    <label for="importRatesFile" class="export-btn import-label" title="Загрузить оценки из JSON">Импорт базы</label>
+                    <input type="file" id="importRatesFile" accept=".json" class="hidden">
+                    <button id="clearTopBtn" class="clear-btn danger-btn">Сбросить Топ-25</button>
+                </div>
             </div>
             <div id="top25List" class="top25-list">
                 <p class="empty-text">Топ-25 пока пуст. Оценивайте аниме на Главной!</p>
             </div>
         </section>
+
+        <!-- ЭКРАН 3: ПРОФИЛЬ -->
+        <section id="profileTab" class="tab-content hidden">
+            <div class="profile-card">
+                <div class="profile-header-block">
+                    <div class="avatar-wrapper" id="changeAvatarBtn" title="Сменить аватарку">
+                        <img id="profileAvatar" src="" alt="Аватар">
+                        <div class="avatar-overlay">✏️</div>
+                    </div>
+                    <div class="profile-info-block">
+                        <h2 id="profileName" class="editable-name" title="Кликните, чтобы изменить имя">Отаку</h2>
+                        <p id="profileRegDate" class="reg-date">Регистрация: --.--.----</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="analytics-title">Умная статистика</h3>
+            <div class="analytics-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="statCount">0</div>
+                    <div class="stat-label">Оценено тайтлов</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statAvg">0.0</div>
+                    <div class="stat-label">Средний балл</div>
+                </div>
+                <div class="stat-card span-2">
+                    <div class="stat-value text-ellipsis" id="statStudio">—</div>
+                    <div class="stat-label">Любимая студия</div>
+                </div>
+                <div class="stat-card span-2">
+                    <div class="stat-value text-ellipsis" id="statGenre">—</div>
+                    <div class="stat-label">Популярный жанр</div>
+                </div>
+            </div>
+
+            <hr class="section-divider">
+
+            <div class="profile-backup-actions">
+                <button id="exportProfileBtn" class="export-btn">Экспорт профиля (JSON)</button>
+                <label for="importProfileFile" class="export-btn import-label">Импорт профиля</label>
+                <input type="file" id="importProfileFile" accept=".json" class="hidden">
+            </div>
+        </section>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ДЕТАЛЕЙ -->
+    <div id="detailsModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button id="closeModalBtn" class="modal-close">&times;</button>
+            <div class="modal-body">
+                <div class="modal-header-block">
+                    <img id="modalPoster" src="" alt="Постер" class="modal-poster">
+                    <div class="modal-main-info">
+                        <h2 id="modalTitle">Название аниме</h2>
+                        <p id="modalMeta">Год • Студия • Жанры</p>
+                        <div class="modal-score-wrapper">
+                            <span class="modal-score-label">Итоговый балл:</span>
+                            <div id="modalScore" class="winner-score">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="section-divider">
+                
+                <h3>Выставленные оценки:</h3>
+                <div id="modalScoresGrid" class="modal-scores-grid">
+                    <!-- Заполняется динамически -->
+                </div>
+                
+                <hr class="section-divider">
+                
+                <div class="modal-actions">
+                    <button id="editAnimeBtn" class="primary-btn edit-btn">Редактировать оценку</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
